@@ -51,7 +51,7 @@ Resources:
                 commands:
                 - 'curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -'
                 - 'yum -y install nodejs python2-pip'
-                - 'pip install cfn-lint yamllint'
+                - 'pip install cfn-lint yamllint awscli'
               pre_build:
                 commands:
                 - 'npm install'
