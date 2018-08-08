@@ -49,9 +49,9 @@ Resources:
             phases:
               install:
                 commands:
-                - 'yum -y install python2-pip'
-                - 'pip install cfn-lint yamllint'
                 - 'curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -'
+                - 'yum -y install nodejs python2-pip'
+                - 'pip install cfn-lint yamllint'
               pre_build:
                 commands:
                 - 'npm install'
