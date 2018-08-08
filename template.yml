@@ -122,6 +122,8 @@ Resources:
       EventPattern:
         source:
         - 'aws.codebuild'
+        resources:
+        - !GetAtt 'Project.Arn'
         'detail-type':
         - 'CodeBuild Build State Change'
         detail:
