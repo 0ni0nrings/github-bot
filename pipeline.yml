@@ -1,0 +1,119 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'service pipeline'
+Resources:
+  Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties: {}
+  Repository:
+    Type: 'AWS::CodeCommit::Repository'
+    Properties:
+      RepositoryName: 'github-bot'
+  ProjectRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: 'codebuild.amazonaws.com'
+          Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+      - 'arn:aws:iam::aws:policy/AdministratorAccess'
+  Project:
+    Type: 'AWS::CodeBuild::Project'
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: 'BUILD_GENERAL1_SMALL'
+        Image: 'aws/codebuild/nodejs:8.11.0'
+        Type: 'LINUX_CONTAINER'
+      Name: 'github-bot'
+      ServiceRole: !GetAtt 'ProjectRole.Arn'
+      Source:
+        Type: CODEPIPELINE
+        GitCloneDepth: 1
+        BuildSpec: !Sub |
+            version: 0.2
+            env:
+              parameter-store:
+                GITHUB_TOKEN: '/github-bot/github/token'
+            phases:
+              install:
+                commands:
+                - 'apt-get -y install yamllint'
+              pre_build:
+                commands:
+                - 'npm install'
+                - 'npm test'
+                - 'npm prune --production'
+                - 'cd lambda-src'
+                - 'cp config.example.json config.json'
+                - 'sed -i "s:GITHUB_TOKEN:${!GITHUB_TOKEN}:g" config.json'
+                - 'npm install'
+                - 'npm test'
+                - 'npm prune --production'
+                - 'cd ..'
+              build:
+                commands:
+                - 'aws cloudformation package --template-file template.yml --s3-bucket ${Bucket} --output-template-file packaged.yml'
+                - 'aws cloudformation deploy --template-file packaged.yml --stack-name github-bot --capabilities CAPABILITY_IAM'
+      TimeoutInMinutes: 10
+  PipelineRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: 'codepipeline.amazonaws.com'
+          Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+      - 'arn:aws:iam::aws:policy/AdministratorAccess'
+  Pipeline:
+    Type: 'AWS::CodePipeline::Pipeline'
+    Properties:
+      ArtifactStore:
+        Type: S3
+        Location: !Ref Bucket
+      Name: 'github-bot'
+      RestartExecutionOnUpdate: true
+      RoleArn: !GetAtt 'PipelineRole.Arn'
+      Stages:
+      - Name: Source
+        Actions:
+        - Name: FetchSource
+          ActionTypeId:
+            Category: Source
+            Owner: AWS
+            Provider: CodeCommit
+            Version: '1'
+          Configuration:
+            RepositoryName: !GetAtt 'Repository.Name'
+            BranchName: master
+          OutputArtifacts:
+          - Name: Source
+          RunOrder: 1
+      - Name: BuildTestAndDeploy
+        Actions:
+        - Name: BuildApp
+          ActionTypeId:
+            Category: Build
+            Owner: AWS
+            Provider: CodeBuild
+            Version: '1'
+          Configuration:
+            ProjectName: !Ref Project
+          InputArtifacts:
+          - Name: Source
+          RunOrder: 1
+Outputs:
+  Bucket:
+    Description: 'The artifacts bucket'
+    Value: !Ref Bucket
+  GitCloneUrl:
+    Description: 'The HTTPS clone URL of the repository'
+    Value: !GetAtt 'Repository.CloneUrlHttp'

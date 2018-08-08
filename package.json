@@ -1,0 +1,16 @@
+{
+  "name": "github-bot",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "yamllint template.yml"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@cfn-modules/alerting": "0.0.5",
+    "@cfn-modules/lambda-event-source-webhook": "0.0.1",
+    "@cfn-modules/lambda-function": "0.0.19",
+    "@cfn-modules/s3-bucket": "0.0.11"
+  }
+}

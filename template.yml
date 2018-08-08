@@ -1,0 +1,139 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'github bot'
+Resources:
+  Alerting:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      Parameters:
+        HttpsEndpoint: 'https://api.marbot.io/v1/endpoint/0415e5fb7de34102f6cc46f90250bd5bf2923448527f79a0f287181bb5ea1da8ba74a3fe3a658e3661fe136071b853e621e7ad42325dadd7bce893665e2ad105'
+      TemplateURL: './node_modules/@cfn-modules/alerting/module.yml'
+  PackageBucket:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      Parameters:
+        Versioning: 'false'
+      TemplateURL: './node_modules/@cfn-modules/s3-bucket/module.yml'
+  WebhookEventSource:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      Parameters:
+        LambdaModule: !GetAtt 'WebhookFunction.Outputs.StackName'
+        AlertingModule: !GetAtt 'Alerting.Outputs.StackName'
+        HttpMethod: POST
+      TemplateURL: './node_modules/@cfn-modules/lambda-event-source-webhook/module.yml'
+  WebhookFunction:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      Parameters:
+        AlertingModule: !GetAtt 'Alerting.Outputs.StackName'
+        Handler: 'webhook.handler'
+        Runtime: 'nodejs8.10'
+        EnvironmentVariable1: !Ref Project
+      TemplateURL: './node_modules/@cfn-modules/lambda-function/module.yml'
+  WebhookPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      Roles: [!GetAtt 'WebhookFunction.Outputs.RoleName']
+      PolicyName: 'codebuild'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: 'codebuild:StartBuild'
+          Resource: !GetAtt 'Project.Arn'
+  Repository: # we only need this because the CodeBuild project can not be created without a source. we input the code to build as the DOWNLOAD_URL environment variable
+    Type: 'AWS::CodeCommit::Repository'
+    Properties:
+      RepositoryName: !Sub '${AWS::StackName}-dummy'
+  Role:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: 'codebuild.amazonaws.com'
+          Action: 'sts:AssumeRole'
+      ManagedPolicyArns: ['arn:aws:iam::aws:policy/AdministratorAccess'] # TODO do we need to deny something?
+  LogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: !Sub '/aws/codebuild/${AWS::StackName}'
+      RetentionInDays: 14
+  Project:
+    DependsOn: LogGroup
+    Type: 'AWS::CodeBuild::Project'
+    Properties:
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Description: 'github-bot'
+      Environment:
+        ComputeType: 'BUILD_GENERAL1_SMALL'
+        EnvironmentVariables:
+        - Name: 'CFN_PACKAGE_BUCKET_NAME'
+          Type: PLAINTEXT
+          Value: !GetAtt 'PackageBucket.Outputs.Name'
+        Image: 'aws/codebuild/nodejs:8.11.0'
+        Type: 'LINUX_CONTAINER'
+      Name: !Ref 'AWS::StackName'
+      ServiceRole: !GetAtt 'Role.Arn'
+      Source:
+        BuildSpec: |
+          ---
+          version: 0.2
+          phases:
+            install:
+              commands: []
+            pre_build:
+              commands:
+              - 'git clone "https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}.git"'
+              - 'cd "${GITHUB_REPO}"'
+              - 'git reset --hard "${GITHUB_SHA}"'
+              - 'git submodule update --init --recursive'
+              - 'cd test/ && npm install && cd ../'
+            build:
+              commands:
+              - 'cd test/ && npm test && cd ../'
+            post_build:
+              commands: []
+        Location: !GetAtt 'Repository.CloneUrlHttp'
+        Type: CODECOMMIT
+      TimeoutInMinutes: 60
+  RuleFunction:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      Parameters:
+        AlertingModule: !GetAtt 'Alerting.Outputs.StackName'
+        Handler: 'rule.handler'
+        Runtime: 'nodejs8.10'
+      TemplateURL: './node_modules/@cfn-modules/lambda-function/module.yml'
+  RulePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt 'RuleFunction.Outputs.Name'
+      Principal: 'events.amazonaws.com'
+      SourceArn: !GetAtt 'Rule.Arn'
+  Rule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      EventPattern:
+        source:
+        - 'aws.codebuild'
+        'detail-type':
+        - 'CodeBuild Build State Change'
+        detail:
+          'build-status':
+          - IN_PROGRESS
+          - SUCCEEDED
+          - FAILED
+          - STOPPED
+      State: ENABLED
+      Targets:
+      - Arn: !GetAtt 'RuleFunction.Outputs.Arn'
+        Id: rule
+Outputs:
+  Url:
+    Value: !GetAtt 'WebhookEventSource.Outputs.Url'

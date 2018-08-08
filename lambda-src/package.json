@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "eslint ."
+  },
+  "dependencies": {
+    "axios": "0.18.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "2.249.1",
+    "eslint": "5.1.0"
+  }
+}
