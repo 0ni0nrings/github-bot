@@ -21,7 +21,13 @@ Resources:
           Action: 'sts:AssumeRole'
       ManagedPolicyArns:
       - 'arn:aws:iam::aws:policy/AdministratorAccess'
+  LogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: !Sub '/aws/codebuild/${AWS::StackName}'
+      RetentionInDays: 14
   Project:
+    DependsOn: LogGroup
     Type: 'AWS::CodeBuild::Project'
     Properties:
       Artifacts:
@@ -30,7 +36,7 @@ Resources:
         ComputeType: 'BUILD_GENERAL1_SMALL'
         Image: 'aws/codebuild/nodejs:8.11.0'
         Type: 'LINUX_CONTAINER'
-      Name: 'github-bot'
+      Name: !Ref 'AWS::StackName'
       ServiceRole: !GetAtt 'ProjectRole.Arn'
       Source:
         Type: CODEPIPELINE
