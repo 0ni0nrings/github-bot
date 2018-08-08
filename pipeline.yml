@@ -41,13 +41,13 @@ Resources:
               parameter-store:
                 GITHUB_TOKEN: '/github-bot/github/token'
             phases:
-              install:
-                commands:
-                - 'apt-get -y install yamllint'
+              #install:
+              #  commands:
+              #  - 'apt-get -y install yamllint'
               pre_build:
                 commands:
                 - 'npm install'
-                - 'npm test'
+                #- 'npm test'
                 - 'npm prune --production'
                 - 'cd lambda-src'
                 - 'cp config.example.json config.json'
@@ -61,6 +61,44 @@ Resources:
                 - 'aws cloudformation package --template-file template.yml --s3-bucket ${Bucket} --output-template-file packaged.yml'
                 - 'aws cloudformation deploy --template-file packaged.yml --stack-name github-bot --capabilities CAPABILITY_IAM'
       TimeoutInMinutes: 10
+  RuleRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: 'events.amazonaws.com'
+          Action: 'sts:AssumeRole'
+      Policies:
+      - PolicyName: 'root'
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: 'codepipeline:StartPipelineExecution'
+            Resource: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${Pipeline}'
+  Rule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      EventPattern:
+        source:
+        - 'aws.codecommit'
+        'detail-type':
+        - 'CodeCommit Repository State Change'
+        resources:
+        - !GetAtt 'Repository.Arn'
+        detail:
+          referenceType:
+          - branch
+          referenceName:
+          - master
+      State: ENABLED
+      Targets:
+      - Arn: !Sub 'arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${Pipeline}'
+        Id: pipeline
+        RoleArn: !GetAtt 'RuleRole.Arn'
   PipelineRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -94,6 +132,7 @@ Resources:
           Configuration:
             RepositoryName: !GetAtt 'Repository.Name'
             BranchName: master
+            PollForSourceChanges: false
           OutputArtifacts:
           - Name: Source
           RunOrder: 1
