@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "yamllint template.yml"
+    "test": "yamllint pipeline.yml && yamllint template.yml && cfn-lint pipeline.yml && cfn-lint template.yml"
   },
   "author": "",
   "license": "Apache-2.0",

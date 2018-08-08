@@ -34,7 +34,7 @@ Resources:
         Type: CODEPIPELINE
       Environment:
         ComputeType: 'BUILD_GENERAL1_SMALL'
-        Image: 'aws/codebuild/nodejs:8.11.0'
+        Image: 'amazonlinux:2.0.20180622.1'
         Type: 'LINUX_CONTAINER'
       Name: !Ref 'AWS::StackName'
       ServiceRole: !GetAtt 'ProjectRole.Arn'
@@ -47,17 +47,20 @@ Resources:
               parameter-store:
                 GITHUB_TOKEN: '/github-bot/github/token'
             phases:
-              #install:
-              #  commands:
-              #  - 'apt-get -y install yamllint'
+              install:
+                commands:
+                - 'yum -y install python2-pip'
+                - 'pip install cfn-lint yamllint'
+                - 'curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -'
               pre_build:
                 commands:
                 - 'npm install'
-                #- 'npm test'
+                - 'npm test'
                 - 'npm prune --production'
                 - 'cd lambda-src'
                 - 'cp config.example.json config.json'
                 - 'sed -i "s:GITHUB_TOKEN:${!GITHUB_TOKEN}:g" config.json'
+                - 'cat config.json'
                 - 'npm install'
                 - 'npm test'
                 - 'npm prune --production'
@@ -142,9 +145,9 @@ Resources:
           OutputArtifacts:
           - Name: Source
           RunOrder: 1
-      - Name: BuildTestAndDeploy
+      - Name: Production
         Actions:
-        - Name: BuildApp
+        - Name: BuildTestAndDeploy
           ActionTypeId:
             Category: Build
             Owner: AWS

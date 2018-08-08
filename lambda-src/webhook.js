@@ -9,6 +9,7 @@ exports.handler = async (event) => {
   console.log(JSON.stringify(event));
   const body = JSON.parse(event.body);
   console.log(JSON.stringify(body));
+  // TODO check secret
   if (event.headers['X-GitHub-Event'] === 'issue_comment') {
     if(body.action === 'created') {
       if ('pull_request' in body.issue) {
