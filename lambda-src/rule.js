@@ -31,13 +31,13 @@ exports.handler = async (event) => {
   await axios.post(`https://api.github.com/repos/${githubOwner}/${githubRepo}/statuses/${githubSha}`, {
     state,
     description: 'Spin up CloudFormation stacks (sponsored by widdix)',
-    context: 'widdix-bot',
+    context: 'widdix-github-bot',
     target_url: targetUrl
   }, {
     headers: {
       Accept: 'application/vnd.github.v3+json',
       Authorization: `token ${config.github.token}`,
-      'User-Agent': 'github-bot'
+      'User-Agent': 'widdix-github-bot'
     }
   });
   return true;
