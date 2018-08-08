@@ -12,7 +12,7 @@ exports.handler = async (event) => {
   if (event.headers['X-GitHub-Event'] === 'issue_comment') {
     if(body.action === 'created') {
       if ('pull_request' in body.issue) {
-        if (body.sender.login === 'michaelwittig' || body.sender.login === 'andreaswittig') {
+        if (body.sender.login === 'michaelwittig' || body.sender.login === 'andreaswittig') {
           if (body.comment.body === 'test') {
             const pr = await axios.get(`https://api.github.com/repos/${body.repository.owner.login}/${body.repository.name}/pulls/${body.issue.number}`, {
               headers: {
