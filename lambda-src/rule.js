@@ -23,22 +23,24 @@ exports.handler = async (event) => {
     acc[environmentVariable.name] = environmentVariable.value;
     return acc;
   }, {});
-  const state = mapBuildStatus(event.detail['build-status']);
-  const targetUrl = (state === 'failure' || state === 'success') ? event.detail['additional-information'].logs['deep-link'] : undefined; 
-  const githubOwner = environmentVariables.GITHUB_OWNER;
-  const githubRepo = environmentVariables.GITHUB_REPO;
-  const githubSha = environmentVariables.GITHUB_SHA;
-  await axios.post(`https://api.github.com/repos/${githubOwner}/${githubRepo}/statuses/${githubSha}`, {
-    state,
-    description: 'Spin up CloudFormation stacks (sponsored by widdix)',
-    context: 'widdix-github-bot',
-    target_url: targetUrl
-  }, {
-    headers: {
-      Accept: 'application/vnd.github.v3+json',
-      Authorization: `token ${config.github.token}`,
-      'User-Agent': 'widdix-github-bot'
-    }
-  });
+  if ('GITHUB_OWNER' in environmentVariables && 'GITHUB_REPO' in environmentVariables && 'GITHUB_SHA' in environmentVariables) {
+    const state = mapBuildStatus(event.detail['build-status']);
+    const targetUrl = (state === 'failure' || state === 'success') ? event.detail['additional-information'].logs['deep-link'] : undefined; 
+    const githubOwner = environmentVariables.GITHUB_OWNER;
+    const githubRepo = environmentVariables.GITHUB_REPO;
+    const githubSha = environmentVariables.GITHUB_SHA;
+    await axios.post(`https://api.github.com/repos/${githubOwner}/${githubRepo}/statuses/${githubSha}`, {
+      state,
+      description: 'Spin up CloudFormation stacks (sponsored by widdix)',
+      context: 'widdix-github-bot',
+      target_url: targetUrl
+    }, {
+      headers: {
+        Accept: 'application/vnd.github.v3+json',
+        Authorization: `token ${config.github.token}`,
+        'User-Agent': 'widdix-github-bot'
+      }
+    });
+  }
   return true;
 };
