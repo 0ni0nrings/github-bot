@@ -31,7 +31,7 @@ exports.handler = async (event) => {
     const githubSha = environmentVariables.GITHUB_SHA;
     await axios.post(`https://api.github.com/repos/${githubOwner}/${githubRepo}/statuses/${githubSha}`, {
       state,
-      description: 'Spin up CloudFormation stacks (sponsored by widdix)',
+      description: 'Create stacks (sponsored by widdix.net)',
       context: 'widdix-github-bot',
       target_url: targetUrl
     }, {
