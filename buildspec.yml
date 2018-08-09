@@ -1,0 +1,27 @@
+---
+version: 0.2
+env:
+  parameter-store:
+    GITHUB_TOKEN: '/github-bot/github/token'
+phases:
+  install:
+    commands:
+    - 'curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -'
+    - 'yum -y install nodejs python2-pip'
+    - 'pip install cfn-lint yamllint awscli'
+  pre_build:
+    commands:
+    - 'npm install'
+    - 'npm test'
+    - 'npm prune --production'
+    - 'cd lambda-src'
+    - 'mv config.example.json config.json'
+    - 'sed -i "s:GITHUB_TOKEN:${GITHUB_TOKEN}:g" config.json'
+    - 'npm install'
+    - 'npm test'
+    - 'npm prune --production'
+    - 'cd ..'
+  build:
+    commands:
+    - 'aws cloudformation package --template-file template.yml --s3-bucket ${BUCKET_NAME} --output-template-file packaged.yml'
+    - 'aws cloudformation deploy --template-file packaged.yml --stack-name github-bot --capabilities CAPABILITY_IAM'
