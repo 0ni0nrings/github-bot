@@ -58,7 +58,7 @@ Resources:
                 - 'npm test'
                 - 'npm prune --production'
                 - 'cd lambda-src'
-                - 'cp config.example.json config.json'
+                - 'mv config.example.json config.json'
                 - 'sed -i "s:GITHUB_TOKEN:${!GITHUB_TOKEN}:g" config.json'
                 - 'npm install'
                 - 'npm test'
