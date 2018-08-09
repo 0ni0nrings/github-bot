@@ -108,6 +108,7 @@ Resources:
         AlertingModule: !GetAtt 'Alerting.Outputs.StackName'
         Handler: 'rule.handler'
         Runtime: 'nodejs8.10'
+        EnvironmentVariable1: !Ref Project
       TemplateURL: './node_modules/@cfn-modules/lambda-function/module.yml'
   RulePermission:
     Type: 'AWS::Lambda::Permission'

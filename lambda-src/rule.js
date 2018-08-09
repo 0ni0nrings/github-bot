@@ -19,11 +19,11 @@ const mapBuildStatus = (status) => {
 
 exports.handler = async (event) => {
   console.log(JSON.stringify(event));
-  const environmentVariables  = event.detail['additional-information'].environment['environment-variables'].reduce((acc, environmentVariable) => {
-    acc[environmentVariable.name] = environmentVariable.value;
-    return acc;
-  }, {});
-  if ('GITHUB_OWNER' in environmentVariables && 'GITHUB_REPO' in environmentVariables && 'GITHUB_SHA' in environmentVariables) {
+  if (event.detail['project-name'] === process.env.VARIABLE1) {
+    const environmentVariables  = event.detail['additional-information'].environment['environment-variables'].reduce((acc, environmentVariable) => {
+      acc[environmentVariable.name] = environmentVariable.value;
+      return acc;
+    }, {});
     const state = mapBuildStatus(event.detail['build-status']);
     const targetUrl = (state === 'failure' || state === 'success') ? event.detail['additional-information'].logs['deep-link'] : undefined; 
     const githubOwner = environmentVariables.GITHUB_OWNER;
