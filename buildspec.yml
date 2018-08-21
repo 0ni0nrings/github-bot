@@ -3,6 +3,7 @@ version: 0.2
 env:
   parameter-store:
     GITHUB_TOKEN: '/github-bot/github/token'
+    SECRET: '/github-bot/secret'
 phases:
   install:
     commands:
@@ -17,6 +18,7 @@ phases:
     - 'cd lambda-src'
     - 'mv config.example.json config.json'
     - 'sed -i "s:GITHUB_TOKEN:${GITHUB_TOKEN}:g" config.json'
+    - 'sed -i "s:SECRET:${SECRET}:g" config.json'
     - 'npm install'
     - 'npm test'
     - 'npm prune --production'
