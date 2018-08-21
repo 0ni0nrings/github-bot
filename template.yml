@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'github bot'
+Description: 'GitHub bot'
 Resources:
   Alerting:
     Type: 'AWS::CloudFormation::Stack'
@@ -42,7 +42,7 @@ Resources:
         - Effect: Allow
           Action: 'codebuild:StartBuild'
           Resource: !GetAtt 'Project.Arn'
-  Repository: # we only need this because the CodeBuild project can not be created without a source. we input the code to build as the DOWNLOAD_URL environment variable
+  Repository: # we only need this because the CodeBuild project can not be created without a source.
     Type: 'AWS::CodeCommit::Repository'
     Properties:
       RepositoryName: !Sub '${AWS::StackName}-dummy'
@@ -56,7 +56,7 @@ Resources:
           Principal:
             Service: 'codebuild.amazonaws.com'
           Action: 'sts:AssumeRole'
-      ManagedPolicyArns: ['arn:aws:iam::aws:policy/AdministratorAccess'] # TODO do we need to deny something?
+      ManagedPolicyArns: ['arn:aws:iam::aws:policy/AdministratorAccess'] # depending on your use case you can narrow down this policy
   LogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:

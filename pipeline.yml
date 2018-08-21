@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'service pipeline'
+Description: 'GitHub bot pipeline'
 Resources:
   Bucket:
     Type: 'AWS::S3::Bucket'

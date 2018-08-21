@@ -1,4 +1,4 @@
-# widdix-github-bot
+# widdix GitHub bot
 
 ## Pipeline prerequisites
 
