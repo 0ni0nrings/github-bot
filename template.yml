@@ -42,7 +42,7 @@ Resources:
         - Effect: Allow
           Action: 'codebuild:StartBuild'
           Resource: !GetAtt 'Project.Arn'
-  Repository: # we only need this because the CodeBuild project can not be created without a source.
+  Repository: # we only need this because the CodeBuild project cannot be created without a source.
     Type: 'AWS::CodeCommit::Repository'
     Properties:
       RepositoryName: !Sub '${AWS::StackName}-dummy'
