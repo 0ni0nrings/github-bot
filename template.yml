@@ -14,6 +14,12 @@ Resources:
       Parameters:
         Versioning: 'false'
       TemplateURL: './node_modules/@cfn-modules/s3-bucket/module.yml'
+  CacheBucket:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      Parameters:
+        Versioning: 'false'
+      TemplateURL: './node_modules/@cfn-modules/s3-bucket/module.yml'
   WebhookEventSource:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
@@ -68,6 +74,9 @@ Resources:
     Properties:
       Artifacts:
         Type: NO_ARTIFACTS
+      Cache:
+        Location: !Sub '${CacheBucket.Outputs.Name}/cache'
+        Type: S3
       Description: 'github-bot'
       Environment:
         ComputeType: 'BUILD_GENERAL1_SMALL'
@@ -98,6 +107,9 @@ Resources:
               - 'cd test/ && npm test && cd ../'
             post_build:
               commands: []
+          cache:
+            paths:
+            - '/root/.npm/**/*'
         Location: !GetAtt 'Repository.CloneUrlHttp'
         Type: CODECOMMIT
       TimeoutInMinutes: 60
