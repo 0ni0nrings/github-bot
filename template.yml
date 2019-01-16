@@ -112,7 +112,7 @@ Resources:
             - '/root/.npm/**/*'
         Location: !GetAtt 'Repository.CloneUrlHttp'
         Type: CODECOMMIT
-      TimeoutInMinutes: 180
+      TimeoutInMinutes: 300
   RuleFunction:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
