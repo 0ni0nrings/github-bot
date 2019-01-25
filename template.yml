@@ -35,6 +35,7 @@ Resources:
         AlertingModule: !GetAtt 'Alerting.Outputs.StackName'
         Handler: 'webhook.handler'
         Runtime: 'nodejs8.10'
+        Timeout: '30'
         EnvironmentVariable1: !Ref Project
       TemplateURL: './node_modules/@cfn-modules/lambda-function/module.yml'
   WebhookPolicy:
@@ -120,6 +121,7 @@ Resources:
         AlertingModule: !GetAtt 'Alerting.Outputs.StackName'
         Handler: 'rule.handler'
         Runtime: 'nodejs8.10'
+        Timeout: '30'
         EnvironmentVariable1: !Ref Project
       TemplateURL: './node_modules/@cfn-modules/lambda-function/module.yml'
   RulePermission:
