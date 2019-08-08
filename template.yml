@@ -49,10 +49,6 @@ Resources:
         - Effect: Allow
           Action: 'codebuild:StartBuild'
           Resource: !GetAtt 'Project.Arn'
-  Repository: # we only need this because the CodeBuild project cannot be created without a source.
-    Type: 'AWS::CodeCommit::Repository'
-    Properties:
-      RepositoryName: !Sub '${AWS::StackName}-dummy'
   Role:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -67,10 +63,8 @@ Resources:
   LogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
-      LogGroupName: !Sub '/aws/codebuild/${AWS::StackName}'
       RetentionInDays: 14
   Project:
-    DependsOn: LogGroup
     Type: 'AWS::CodeBuild::Project'
     Properties:
       Artifacts:
@@ -87,6 +81,10 @@ Resources:
           Value: !GetAtt 'PackageBucket.Outputs.Name'
         Image: 'aws/codebuild/nodejs:8.11.0'
         Type: 'LINUX_CONTAINER'
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: !Ref LogGroup
+          Status: ENABLED
       Name: !Ref 'AWS::StackName'
       ServiceRole: !GetAtt 'Role.Arn'
       Source:
@@ -111,8 +109,7 @@ Resources:
           cache:
             paths:
             - '/root/.npm/**/*'
-        Location: !GetAtt 'Repository.CloneUrlHttp'
-        Type: CODECOMMIT
+        Type: NO_SOURCE
       TimeoutInMinutes: 300
   RuleFunction:
     Type: 'AWS::CloudFormation::Stack'
