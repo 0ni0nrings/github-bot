@@ -26,10 +26,10 @@ exports.handler = async (event) => {
     }, {});
     const state = mapBuildStatus(event.detail['build-status']);
     const targetUrl = (state === 'failure' || state === 'success') ? event.detail['additional-information'].logs['deep-link'] : undefined; 
-    const githubOwner = environmentVariables.GITHUB_OWNER;
-    const githubRepo = environmentVariables.GITHUB_REPO;
     const githubSha = environmentVariables.GITHUB_SHA;
-    await axios.post(`https://api.github.com/repos/${githubOwner}/${githubRepo}/statuses/${githubSha}`, {
+    const githubPrOwner = environmentVariables.GITHUB_PR_OWNER
+    const githubPrRepo = environmentVariables.GITHUB_PR_REPO;
+    await axios.post(`https://api.github.com/repos/${githubPrOwner}/${githubPrRepo}/statuses/${githubSha}`, {
       state,
       description: 'Create stacks (sponsored by widdix.net)',
       context: 'widdix-github-bot',

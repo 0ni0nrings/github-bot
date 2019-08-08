@@ -48,6 +48,14 @@ exports.handler = async (event) => {
                   name: 'GITHUB_SHA',
                   value: githubSha,
                   type: 'PLAINTEXT'
+                }, {
+                  name: 'GITHUB_PR_OWNER',
+                  value:  body.repository.owner.login,
+                  type: 'PLAINTEXT'
+                }, {
+                  name: 'GITHUB_PR_REPO',
+                  value: body.repository.name,
+                  type: 'PLAINTEXT'
                 }]
               }).promise();
             } else {
