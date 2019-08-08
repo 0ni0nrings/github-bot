@@ -17,13 +17,18 @@ exports.handler = async (event) => {
         if ('pull_request' in body.issue) {
           if (body.sender.login === 'michaelwittig' || body.sender.login === 'andreaswittig') {
             if (body.comment.body === 'test') {
-              const pr = await axios.get(`https://api.github.com/repos/${body.repository.owner.login}/${body.repository.name}/pulls/${body.issue.number}`, {
-                headers: {
-                  Accept: 'application/vnd.github.v3+json',
-                  Authorization: `token ${config.github.token}`,
-                  'User-Agent': 'github-bot'
-                } 
-              });
+              try {
+                const pr = await axios.get(`https://api.github.com/repos/${body.repository.owner.login}/${body.repository.name}/pulls/${body.issue.number}`, {
+                  headers: {
+                    Accept: 'application/vnd.github.v3+json',
+                    Authorization: `token ${config.github.token}`,
+                    'User-Agent': 'github-bot'
+                  } 
+                });
+                } catch (err) {
+                console.log(JSON.stringify(err.response));
+                throw err;
+              }
               const githubOwner = pr.data.head.repo.owner.login;
               const githubRepo = pr.data.head.repo.name;
               const githubSha = pr.data.head.sha;
