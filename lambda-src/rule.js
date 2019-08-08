@@ -41,7 +41,11 @@ exports.handler = async (event) => {
         'User-Agent': 'widdix-github-bot'
       }
     }).catch(err => {
-      console.log(JSON.stringify(err.response));
+      if (err.response) {
+        console.log(err.response.data);
+        console.log(err.response.status);
+        console.log(err.response.headers);
+      }
       throw err;
     });
   }
