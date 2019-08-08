@@ -27,7 +27,7 @@ exports.handler = async (event) => {
     const state = mapBuildStatus(event.detail['build-status']);
     const targetUrl = (state === 'failure' || state === 'success') ? event.detail['additional-information'].logs['deep-link'] : undefined; 
     const githubSha = environmentVariables.GITHUB_SHA;
-    const githubPrOwner = environmentVariables.GITHUB_PR_OWNER
+    const githubPrOwner = environmentVariables.GITHUB_PR_OWNER;
     const githubPrRepo = environmentVariables.GITHUB_PR_REPO;
     await axios.post(`https://api.github.com/repos/${githubPrOwner}/${githubPrRepo}/statuses/${githubSha}`, {
       state,
