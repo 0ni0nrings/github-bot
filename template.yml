@@ -79,7 +79,7 @@ Resources:
         - Name: 'CFN_PACKAGE_BUCKET_NAME'
           Type: PLAINTEXT
           Value: !GetAtt 'PackageBucket.Outputs.Name'
-        Image: 'aws/codebuild/nodejs:8.11.0'
+        Image: 'aws/codebuild/standard:2.0'
         Type: 'LINUX_CONTAINER'
       LogsConfig:
         CloudWatchLogs:
@@ -93,7 +93,8 @@ Resources:
           version: 0.2
           phases:
             install:
-              commands: []
+              runtime-versions:
+                nodejs: 8
             pre_build:
               commands:
               - 'git clone "https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}.git"'

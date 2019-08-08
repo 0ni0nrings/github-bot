@@ -6,12 +6,13 @@ env:
     SECRET: '/github-bot/secret'
 phases:
   install:
+    runtime-versions:
+      nodejs: 8
+      python: 3.7
     commands:
-    - 'curl --silent --location https://rpm.nodesource.com/setup_8.x | bash -'
-    - 'yum -y install nodejs python2-pip'
-    - 'pip install yamllint==1.13.0'
-    - 'pip install awscli==1.16.85'
-    - 'pip install cfn-lint==0.11.1'
+    - 'pip install yamllint==1.16.0'
+    - 'pip install awscli==1.16.213'
+    - 'pip install cfn-lint==0.23.1'
   pre_build:
     commands:
     - 'npm install'
