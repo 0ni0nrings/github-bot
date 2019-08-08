@@ -29,23 +29,21 @@ exports.handler = async (event) => {
     const githubOwner = environmentVariables.GITHUB_OWNER;
     const githubRepo = environmentVariables.GITHUB_REPO;
     const githubSha = environmentVariables.GITHUB_SHA;
-    try {
-      await axios.post(`https://api.github.com/repos/${githubOwner}/${githubRepo}/statuses/${githubSha}`, {
-        state,
-        description: 'Create stacks (sponsored by widdix.net)',
-        context: 'widdix-github-bot',
-        target_url: targetUrl
-      }, {
-        headers: {
-          Accept: 'application/vnd.github.v3+json',
-          Authorization: `token ${config.github.token}`,
-          'User-Agent': 'widdix-github-bot'
-        }
-      });
-    } catch (err) {
+    await axios.post(`https://api.github.com/repos/${githubOwner}/${githubRepo}/statuses/${githubSha}`, {
+      state,
+      description: 'Create stacks (sponsored by widdix.net)',
+      context: 'widdix-github-bot',
+      target_url: targetUrl
+    }, {
+      headers: {
+        Accept: 'application/vnd.github.v3+json',
+        Authorization: `token ${config.github.token}`,
+        'User-Agent': 'widdix-github-bot'
+      }
+    }).catch(err => {
       console.log(JSON.stringify(err.response));
       throw err;
-    }
+    });
   }
   return true;
 };
