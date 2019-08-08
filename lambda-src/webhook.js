@@ -60,6 +60,7 @@ exports.handler = async (event) => {
     }
     return {statusCode: 204};
   } else {
+    console.log(`X-Hub-Signature header does not match signature ${signature}`);
     return {statusCode: 403};
   }
 };
