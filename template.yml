@@ -24,11 +24,11 @@ Resources:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       Parameters:
-        LambdaModule: !GetAtt 'WebhookFunction2.Outputs.StackName'
+        LambdaModule: !GetAtt 'WebhookFunction.Outputs.StackName'
         AlertingModule: !GetAtt 'Alerting.Outputs.StackName'
         HttpMethod: POST
       TemplateURL: './node_modules/@cfn-modules/lambda-event-source-webhook/module.yml'
-  WebhookFunction2:
+  WebhookFunction:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
       Parameters:
@@ -41,7 +41,7 @@ Resources:
   WebhookPolicy:
     Type: 'AWS::IAM::Policy'
     Properties:
-      Roles: [!GetAtt 'WebhookFunction2.Outputs.RoleName']
+      Roles: [!GetAtt 'WebhookFunction.Outputs.RoleName']
       PolicyName: 'codebuild'
       PolicyDocument:
         Version: '2012-10-17'
