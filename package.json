@@ -8,9 +8,9 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@cfn-modules/alerting": "0.0.5",
-    "@cfn-modules/lambda-event-source-webhook": "0.0.1",
-    "@cfn-modules/lambda-function": "0.0.19",
-    "@cfn-modules/s3-bucket": "0.0.11"
+    "@cfn-modules/alerting": "1.2.0",
+    "@cfn-modules/lambda-event-source-webhook": "1.1.0",
+    "@cfn-modules/lambda-function": "2.4.1",
+    "@cfn-modules/s3-bucket": "1.5.0"
   }
 }
