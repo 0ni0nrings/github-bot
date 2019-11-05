@@ -94,7 +94,7 @@ Resources:
           phases:
             install:
               runtime-versions:
-                nodejs: 8
+                nodejs: 10
             pre_build:
               commands:
               - 'git clone "https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}.git"'
