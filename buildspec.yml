@@ -7,7 +7,7 @@ env:
 phases:
   install:
     runtime-versions:
-      nodejs: 8
+      nodejs: 10
       python: 3.7
     commands:
     - 'pip install yamllint==1.16.0'
