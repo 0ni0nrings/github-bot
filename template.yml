@@ -34,7 +34,7 @@ Resources:
       Parameters:
         AlertingModule: !GetAtt 'Alerting.Outputs.StackName'
         Handler: 'webhook.handler'
-        Runtime: 'nodejs8.10'
+        Runtime: 'nodejs10.x'
         Timeout: '30'
         EnvironmentVariable1: !Ref Project
       TemplateURL: './node_modules/@cfn-modules/lambda-function/module.yml'
@@ -118,7 +118,7 @@ Resources:
       Parameters:
         AlertingModule: !GetAtt 'Alerting.Outputs.StackName'
         Handler: 'rule.handler'
-        Runtime: 'nodejs8.10'
+        Runtime: 'nodejs10.x'
         Timeout: '30'
         EnvironmentVariable1: !Ref Project
       TemplateURL: './node_modules/@cfn-modules/lambda-function/module.yml'
