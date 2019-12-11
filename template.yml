@@ -105,8 +105,6 @@ Resources:
             build:
               commands:
               - 'cd test/ && npm test && cd ../'
-            post_build:
-              commands: []
           cache:
             paths:
             - '/root/.npm/**/*'
